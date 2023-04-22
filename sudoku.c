@@ -1,10 +1,14 @@
+/* Authors: Sarpant & Titouanthd */
+
 #include <stdio.h>
 #include <stdbool.h>
 
 #define SIZE_GRID 9
 
 /* list solutions for the line */
-void check_row_solution(int grid[SIZE_GRID][SIZE_GRID], int possible_solutions[SIZE_GRID], int r) {
+void check_row_solution (int grid [SIZE_GRID] [SIZE_GRID], 
+                         int possible_solutions[SIZE_GRID], int r) {
+
   for (int i = 0; i < SIZE_GRID; i++)
     if (grid[r][i])
       possible_solutions[grid[r][i] - 1] = 0;
@@ -12,44 +16,53 @@ void check_row_solution(int grid[SIZE_GRID][SIZE_GRID], int possible_solutions[S
 
 
 /* list solutions for the columns */
-void check_col_solution(int grid[SIZE_GRID][SIZE_GRID], int possible_solutions[SIZE_GRID], int c) {
+void check_col_solution (int grid [SIZE_GRID] [SIZE_GRID], 
+                         int possible_solutions[SIZE_GRID], int c) {
+
   for (int i = 0; i < SIZE_GRID; i++)
     if (grid[i][c])
       possible_solutions[grid[i][c] - 1] = 0;
 }
 
 /* list solutions for the 3x3 grid */
-void check_box_solution (int grid [SIZE_GRID][SIZE_GRID], int possible_solutions[SIZE_GRID], int r, int c) {
-  int r_block = (r / 3)*3;
-  int c_block = (c / 3)*3;
-  for(int i = r_block; i < r_block + 3; i++)
-    for(int j = c_block; j < c_block + 3; j++)
+void check_box_solution (int grid [SIZE_GRID] [SIZE_GRID],
+                         int possible_solutions[SIZE_GRID], int r, int c) {
+
+  /* start indexs for the current block */
+  int r_block = (r / 3) * 3;
+  int c_block = (c / 3) * 3;
+  for (int i = r_block; i < r_block + 3; i++)
+    for (int j = c_block; j < c_block + 3; j++)
       if (grid[i][j])
         possible_solutions[grid[i][j] - 1] = 0;
 }
 
 /* list choice */
-void list_choice(int grid[SIZE_GRID][SIZE_GRID], int possible_solutions[SIZE_GRID], int r, int c) { 
+void list_choice (int grid [SIZE_GRID] [SIZE_GRID], 
+                  int possible_solutions[SIZE_GRID], int r, int c) { 
+
   check_row_solution(grid, possible_solutions, r);
   check_col_solution(grid, possible_solutions, c);
   check_box_solution(grid, possible_solutions, r, c);
 }
 
 /* make choice */
-int make_choice(int possible_solutions[SIZE_GRID]) {
-  // choose a random possible solution
+int make_choice (int possible_solutions [SIZE_GRID]) {
+
+  /* return the first solution of the list */
   for (int i = 0; i < SIZE_GRID; i++)
     if (possible_solutions[i])
       return possible_solutions[i];
+
   return 0;
 }
 
-/* backtracking */
-bool backtracking (int grid[SIZE_GRID][SIZE_GRID]) {
+/* test all solutions for a case and call itself*/
+bool backtracking (int grid [SIZE_GRID] [SIZE_GRID]) {
   
   int r_choice = -1;
   int c_choice = -1;
-  for (int i = 0; i < SIZE_GRID; i++)
+  for (int i = 0; i < SIZE_GRID; i++) /* find a void case */
     for (int j = 0; j < SIZE_GRID; j++)
       if (!grid[i][j]) {
         r_choice = i;
@@ -57,11 +70,11 @@ bool backtracking (int grid[SIZE_GRID][SIZE_GRID]) {
         break;
       }
 
-  if (r_choice == -1 && c_choice == -1)
+  if (r_choice == -1 && c_choice == -1) /* grid complete */
     return true;
 
   /* tant qu'il y a des choix */
-  int possible_solutions[SIZE_GRID] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+  int possible_solutions [SIZE_GRID] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
   list_choice(grid, possible_solutions, r_choice, c_choice);
   int choice = make_choice(possible_solutions);
 
@@ -70,20 +83,22 @@ bool backtracking (int grid[SIZE_GRID][SIZE_GRID]) {
     grid[r_choice][c_choice] = choice;
     bool result = backtracking(grid); /* call backtracking */
 
-    if (result)
+    if (result) /* grid complete */
       return true;
 
-    possible_solutions[choice - 1] = 0; /* remove choice from possible solutions */
+    /* remove choice from possible solutions */
+    possible_solutions[choice - 1] = 0;
     choice = make_choice(possible_solutions);
   }
-  
-  grid[r_choice][c_choice] = 0;
-  return false;
+  /* no more choice */
+  grid[r_choice][c_choice] = 0; /* cancel choice */
+  return false; /* backtrack */
 }
 
-// we want to create a sudoku solver
-int main(int argc, char ** argv) {
-  int sudoku_grid[SIZE_GRID][SIZE_GRID] = {
+
+int main (int argc, char ** argv) {
+
+  int sudoku_grid [SIZE_GRID] [SIZE_GRID] = {
     {0, 0, 3, 0, 2, 0, 6, 0, 0},
     {9, 0, 0, 3, 0, 5, 0, 0, 1},
     {0, 0, 1, 8, 0, 6, 4, 0, 0},
@@ -103,5 +118,9 @@ int main(int argc, char ** argv) {
       printf("\n");
     }
   }
+  else {
+    printf("No solution found!\n");
+  }
+
   return 0;
 }
